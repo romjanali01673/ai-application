@@ -22,6 +22,6 @@ String getFormattedDate(String input) {
     debugPrint("Error parsing date: $e");
   }
 
-  debugPrint("$input -> $formatted");
+  // debugPrint("$input -> $formatted");
   return formatted;
 }

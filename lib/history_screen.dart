@@ -1,6 +1,9 @@
+
+
 import 'package:ai_application/helper_method.dart';
-import 'package:ai_application/services/user_list.dart';
+import 'package:ai_application/providers/user_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -10,14 +13,21 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  Users users = Users();
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    
+    WidgetsBinding.instance.addPostFrameCallback((_){
+      UserProvider userProvider =context.read<UserProvider>();
+      userProvider.getUserListFromServer();
+    });
+
   }
   @override
   Widget build(BuildContext context) {
+    print("build");
     return Scaffold(
       appBar: AppBar(
         title: Text("History"),
@@ -82,33 +92,56 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
         
-            FutureBuilder(
-              future: users.getUserListFromServer(), 
-              builder: (context, AsyncSnapshot snapshot){
-                if(snapshot.connectionState != ConnectionState.done){
-
+            Consumer<UserProvider>(
+              // child: ,
+              builder: (context, userProvider,child){
+                if(userProvider.isloading){
                   return Center(child: CircularProgressIndicator(),);
                 }
                 else{
-                  debugPrint(users.getUserList.length.toString());
                   return Expanded(
-                    child: ListView.builder(
-                      itemCount:users.getUserList.length ,
-                      itemBuilder: (context, index){
-                        return getCustomTile(
-                          firstName: users.getUserList[index]["firstName"], 
-                          lastName: users.getUserList[index]["lastName"], 
-                          age: users.getUserList[index]["age"].toString(), 
-                          phone: users.getUserList[index]["phone"],
-                          image: users.getUserList[index]["image"], 
-                          birthDate: users.getUserList[index]["birthDate"],
-                        );
-                      }
-                    ),
-                  );
-                }
-              }
-            ),
+                    child: StatefulBuilder(
+                      builder: (context, setLocalState) {
+                        return ListView.builder(
+                          itemCount:userProvider.getUserList.length ,
+                          itemBuilder: (context, index){
+                                    return getCustomTile(
+                                      firstName: userProvider.getUserList[index]["firstName"], 
+                                      lastName: userProvider.getUserList[index]["lastName"], 
+                                      age: userProvider.getUserList[index]["age"].toString(), 
+                                      phone: userProvider.getUserList[index]["phone"],
+                                      image: userProvider.getUserList[index]["image"], 
+                                      birthDate: userProvider.getUserList[index]["birthDate"],
+                                      deleteAction: () {
+                                        userProvider.deleteAUser(
+                                          id : userProvider.getUserList[index]["id"], 
+                                          responceMessage: (String responceMessage) {
+                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responceMessage)));
+                                          }
+                                        );
+                                      },
+                                      updateAction: () {
+                                        userProvider.updateAUserData(
+                                          id : userProvider.getUserList[index]["id"],
+                                          map: {
+                                            "firstName": "Romjan",
+                                            "lastName": "Ali"
+                                          },
+                                          callback: (responceMessage){
+                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responceMessage)));
+                                          },
+                                        ); 
+                                      },
+                                    );
+                              }
+                            );
+                          }
+                        ),
+                      );
+                    }
+                  }
+                ),
+  
         
          
           ],
@@ -145,6 +178,8 @@ Widget getCustomTile({
   required String phone ,
   required String image,
   required String birthDate,
+  Function()? deleteAction,
+  Function()? updateAction,
 }){
   return Container(
               padding: EdgeInsets.all(10),
@@ -231,9 +266,17 @@ Widget getCustomTile({
                           mainAxisSize: MainAxisSize.min,
                           spacing: 5,
                           children: [
-                            Icon(Icons.share, color: Colors.blue,),
+                            GestureDetector(
+                              onTap: (){
+                                updateAction?.call();
+                              },
+                              child: Icon(Icons.share, color: Colors.blue,)),
                             getDividerH(),
-                            Icon(Icons.delete_outline, color: Colors.red,)
+                            GestureDetector(
+                              onTap: (){
+                                deleteAction?.call();
+                              },
+                              child: Icon(Icons.delete_outline, color: Colors.red,))
                           
                           ],
                         ),
