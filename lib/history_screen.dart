@@ -1,8 +1,21 @@
+import 'package:ai_application/helper_method.dart';
+import 'package:ai_application/services/user_list.dart';
 import 'package:flutter/material.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  Users users = Users();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,18 +82,32 @@ class HistoryScreen extends StatelessWidget {
               ),
             ),
         
-            
+            FutureBuilder(
+              future: users.getUserListFromServer(), 
+              builder: (context, AsyncSnapshot snapshot){
+                if(snapshot.connectionState != ConnectionState.done){
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: 20,
-                itemBuilder: (context, index){
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: getCustomTile(),
+                  return Center(child: CircularProgressIndicator(),);
+                }
+                else{
+                  debugPrint(users.getUserList.length.toString());
+                  return Expanded(
+                    child: ListView.builder(
+                      itemCount:users.getUserList.length ,
+                      itemBuilder: (context, index){
+                        return getCustomTile(
+                          firstName: users.getUserList[index]["firstName"], 
+                          lastName: users.getUserList[index]["lastName"], 
+                          age: users.getUserList[index]["age"].toString(), 
+                          phone: users.getUserList[index]["phone"],
+                          image: users.getUserList[index]["image"], 
+                          birthDate: users.getUserList[index]["birthDate"],
+                        );
+                      }
+                    ),
                   );
                 }
-              ),
+              }
             ),
         
          
@@ -111,7 +138,14 @@ Widget getDividerH(){
 }
 
 
-Widget getCustomTile(){
+Widget getCustomTile({
+  required String firstName,
+  required String lastName,
+  required String age ,
+  required String phone ,
+  required String image,
+  required String birthDate,
+}){
   return Container(
               padding: EdgeInsets.all(10),
               margin: EdgeInsets.all(2),
@@ -134,7 +168,7 @@ Widget getCustomTile(){
                       children: [
                         CircleAvatar(
                           radius: 20,
-                          child: Text("A", style: TextStyle(fontSize: 25),),
+                          backgroundImage: NetworkImage(image),
                         ),
                         Text("Ai Chat")
                       ],
@@ -145,15 +179,29 @@ Widget getCustomTile(){
                     // body
                     Expanded(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            child: Text(
-                              "Hi, i need help with designing a chatbot interface. can you help me? i want it to",
-                              maxLines: 3,
-                              style: TextStyle(fontSize: 16),
-                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Name : $firstName $lastName",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                Text(
+                                  "Age : $age",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                Text(
+                                  "Phone No : $phone",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            )
                           ),
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(Icons.access_time_sharp),
                               Text("${"12:12 pm"}"),
@@ -161,7 +209,7 @@ Widget getCustomTile(){
                                 width: 10,
                               ),
                               Icon(Icons.date_range),
-                              Text("04 april,2024")
+                              Text(getFormattedDate(birthDate))
                             ],
                           ),
                         ],
