@@ -87,6 +87,7 @@ class DioApiServices {
 
 
   // common request function 
+  // use try catch from where want to called this function.
   Future<Response> makeRequest(
     String endpoint, 
     {dynamic data, 

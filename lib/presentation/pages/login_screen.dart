@@ -4,6 +4,7 @@ import 'package:ai_application/data/datasources/local/authentication_data.dart';
 import 'package:ai_application/data/datasources/local/user_data.dart';
 import 'package:ai_application/data/datasources/remote/dio_api_services.dart';
 import 'package:ai_application/data/model/user_model.dart';
+import 'package:ai_application/presentation/controller/test_controller.dart';
 import 'package:ai_application/presentation/pages/hello_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -17,35 +18,40 @@ class LoginScreen extends StatelessWidget {
     return Center(
       child: ElevatedButton(
         onPressed: ()async{
-          int id = 1; 
-          AuthenticationLocalData  authlocaldata = await AuthenticationLocalData.instance();
-          UserLocalData  userLocalData = await UserLocalData.instance();
-          DioApiServices dioApiServices = DioApiServices.instance;
 
           try {
-            Response<dynamic> response = await dioApiServices.makeRequest(
-              method: HTTPMethod.get,
-              // EndPoints.user+"sdfa$id",
-              EndPoints.user+"$id",
-            );
+            await login();
+          }on DioException catch (e, s) {
+            CBase cb = CBase();
+            cb.setException(error: e, stackTrace: s);
 
-            if(response.statusCode ==200){
-              UserModel userModel = UserModel.fromMap((response.data));
-              debugPrint(userModel.toMap().toString());
-              await userLocalData.setProfileLocally(userModel);
-            }
-          }on DioException catch (e) {
-
-            debugPrint("AAA ${e.response?.statusCode.toString()}  ${e.message.toString()} AAA");
+            // debugPrint("AAA ${e.response?.statusCode.toString()}  ${e.message.toString()} AAA");
           }catch (e){
-            debugPrint( "AA${e.toString()}AA");
+            // debugPrint( "AA${e.toString()}AA");
           }
           
-          authlocaldata.setIsSignined(true);
-          Get.off(()=>HelloScreen());
         }, 
         child: Text("Login"),),
     );
-    
+
+  }
+
+  Future<void> login()async{
+    int id = 1; 
+    AuthenticationLocalData  authlocaldata = await AuthenticationLocalData.instance();
+    UserLocalData  userLocalData = await UserLocalData.instance();
+    DioApiServices dioApiServices = DioApiServices.instance;
+      Response<dynamic> response = await dioApiServices.makeRequest(
+        method: HTTPMethod.get,
+        // EndPoints.user+"sdfa$id",
+        EndPoints.user+"$id",
+      );
+      if(response.statusCode ==200){
+        UserModel userModel = UserModel.fromMap((response.data));
+        debugPrint(userModel.toMap().toString());
+        await userLocalData.setProfileLocally(userModel);
+      }
+    authlocaldata.setIsSignined(true);
+    Get.off(()=>HelloScreen());
   }
 }

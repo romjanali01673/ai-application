@@ -38,19 +38,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
         title: Text("History"),
         actions: [
           IconButton(
-            onPressed: ()async{
-              AuthenticationLocalData authLocalData = await AuthenticationLocalData.instance();
-              authLocalData.setIsSignined(false);
-              Get.offAll(()=>LoginScreen());
-            }, 
+            onPressed: logout, 
             icon: Icon(Icons.logout),
           ),
           GestureDetector(
-            onTap: () async{
-              UserLocalData userLocalData = await UserLocalData.instance();
-              UserModel? userModel =await userLocalData.getProfileLocally();
-              Get.to(()=>ProfileScreen(userModel : userModel!));
-            },
+            onTap: navigateProfileScreen,
             child: Padding(
               padding: const EdgeInsets.only(right: 10),
               child: CircleAvatar(
@@ -170,6 +162,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 }
+
+
+void navigateProfileScreen()async{
+  UserLocalData userLocalData = await UserLocalData.instance();
+  UserModel? userModel =await userLocalData.getProfileLocally();
+  Get.to(()=>ProfileScreen(userModel : userModel!));
+}
+
+void logout()async{
+  AuthenticationLocalData authLocalData = await AuthenticationLocalData.instance();
+  UserLocalData userLocalData = await UserLocalData.instance();
+  authLocalData.setIsSignined(false);
+  userLocalData.clearUserProfile();
+  Get.offAll(()=>LoginScreen());
+}
+
+
+
+
 
 
 Widget getDividerV(){

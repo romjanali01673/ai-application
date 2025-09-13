@@ -42,4 +42,10 @@ class UserLocalData{
     // decode and return 
     return UserModel.fromMap(jsonDecode(data));
   }
+
+  // clear user profile data
+  Future<void> clearUserProfile()async{
+    await _sharedPreferences.remove(Constants.profile);
+  }
+  
 }
