@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:ai_application/ui_helper_method.dart';
+import 'package:ai_application/presentation/widgets/ui_helper_method.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 

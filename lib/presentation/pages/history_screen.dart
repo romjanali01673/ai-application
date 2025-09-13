@@ -1,8 +1,14 @@
 
 
-import 'package:ai_application/helper_method.dart';
-import 'package:ai_application/providers/user_provider.dart';
+import 'package:ai_application/data/datasources/local/authentication_data.dart';
+import 'package:ai_application/data/datasources/local/user_data.dart';
+import 'package:ai_application/data/model/user_model.dart';
+import 'package:ai_application/presentation/pages/login_screen.dart';
+import 'package:ai_application/presentation/pages/profile_screen.dart';
+import 'package:ai_application/presentation/widgets/helper_method.dart';
+import 'package:ai_application/presentation/controller/c_user.dart';
 import 'package:flutter/material.dart';
+import 'package:get/route_manager.dart';
 import 'package:provider/provider.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -20,23 +26,37 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.initState();
     
     WidgetsBinding.instance.addPostFrameCallback((_){
-      UserProvider userProvider =context.read<UserProvider>();
-      userProvider.getUserListFromServer();
+      CUser cUser =context.read<CUser>();
+      cUser.getUserListFromServer();
     });
 
   }
   @override
   Widget build(BuildContext context) {
-    print("build");
     return Scaffold(
       appBar: AppBar(
         title: Text("History"),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundImage: NetworkImage("https://scontent.fzyl2-2.fna.fbcdn.net/v/t39.30808-6/490295869_1342466350336950_1132803492906371083_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=cBWtCIqEZvQQ7kNvwH_k4t7&_nc_oc=Adn1X_-r_Uh5PzjZN-v_5y_duowUN_VcDvyd9TT0uiWerYG16H2scIvnpTavev9UxI8&_nc_zt=23&_nc_ht=scontent.fzyl2-2.fna&_nc_gid=XoIwul_edtU1UTD9e2j2zA&oh=00_AfYB9H4w0a1ytI_yVsuwDxh8ZFK8g0mfRWGbnwOj_HNC7A&oe=68BF0A87")
+          IconButton(
+            onPressed: ()async{
+              AuthenticationLocalData authLocalData = await AuthenticationLocalData.instance();
+              authLocalData.setIsSignined(false);
+              Get.offAll(()=>LoginScreen());
+            }, 
+            icon: Icon(Icons.logout),
+          ),
+          GestureDetector(
+            onTap: () async{
+              UserLocalData userLocalData = await UserLocalData.instance();
+              UserModel? userModel =await userLocalData.getProfileLocally();
+              Get.to(()=>ProfileScreen(userModel : userModel!));
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: CircleAvatar(
+                radius: 20,
+                child: Icon(Icons.person),
+              ),
             ),
           ),
         ],
@@ -92,49 +112,49 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
         
-            Consumer<UserProvider>(
+            Consumer<CUser>(
               // child: ,
-              builder: (context, userProvider,child){
-                if(userProvider.isloading){
-                  return Center(child: CircularProgressIndicator(),);
+              builder: (_, cUser,child){
+                if(cUser.isloading){
+                  return Expanded(child: Center(child: CircularProgressIndicator(),));
                 }
                 else{
                   return Expanded(
-                    child: StatefulBuilder(
-                      builder: (context, setLocalState) {
-                        return ListView.builder(
-                          itemCount:userProvider.getUserList.length ,
-                          itemBuilder: (context, index){
-                                    return getCustomTile(
-                                      firstName: userProvider.getUserList[index]["firstName"], 
-                                      lastName: userProvider.getUserList[index]["lastName"], 
-                                      age: userProvider.getUserList[index]["age"].toString(), 
-                                      phone: userProvider.getUserList[index]["phone"],
-                                      image: userProvider.getUserList[index]["image"], 
-                                      birthDate: userProvider.getUserList[index]["birthDate"],
-                                      deleteAction: () {
-                                        userProvider.deleteAUser(
-                                          id : userProvider.getUserList[index]["id"], 
-                                          responceMessage: (String responceMessage) {
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responceMessage)));
-                                          }
-                                        );
-                                      },
-                                      updateAction: () {
-                                        userProvider.updateAUserData(
-                                          id : userProvider.getUserList[index]["id"],
-                                          map: {
-                                            "firstName": "Romjan",
-                                            "lastName": "Ali"
-                                          },
-                                          callback: (responceMessage){
-                                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responceMessage)));
-                                          },
-                                        ); 
-                                      },
+                    child: ListView.builder(
+                      itemCount:cUser.getUserList.length ,
+                      itemBuilder: (_, index){
+                                return getCustomTile(
+                                  firstName: cUser.getUserList[index]["firstName"], 
+                                  lastName: cUser.getUserList[index]["lastName"], 
+                                  age: cUser.getUserList[index]["age"].toString(), 
+                                  phone: cUser.getUserList[index]["phone"],
+                                  image: cUser.getUserList[index]["image"], 
+                                  birthDate: cUser.getUserList[index]["birthDate"],
+                                  deleteAction: () {
+                                    cUser.deleteAUser(
+                                      context: context,
+                                      id : cUser.getUserList[index]["id"], 
+                                      // responceMessage: (responceMessage) {
+                                        
+                                      // }
                                     );
-                              }
-                            );
+                                  },
+                                  updateAction: () {
+                                    cUser.updateAUserData(
+                                      id : cUser.getUserList[index]["id"],
+                                      map: {
+                                        "firstName": "Romjan",
+                                        "lastName": "Ali"
+                                      },
+                                      callback: (responceMessage){
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(responceMessage)));
+                                        // rootScaffoldMessengerKey.currentState?.showSnackBar(
+                                        //   SnackBar(content: Text(responceMessage)),
+                                        // );
+                                      },
+                                    ); 
+                                  },
+                                );
                           }
                         ),
                       );

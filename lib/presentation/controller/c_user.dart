@@ -1,9 +1,10 @@
 
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-class UserProvider extends ChangeNotifier{
+class CUser extends ChangeNotifier{
   List<Map<String, dynamic>> _userList =[];
   List<Map<String, dynamic>> get  getUserList => _userList;
 
@@ -13,7 +14,7 @@ class UserProvider extends ChangeNotifier{
   bool get isloading => _isLoading;
 
   // set function ------------------
-  void setIsLoading(value){
+  void setIsLoading(bool value){
     _isLoading = value;
     notifyListeners(); 
   }
@@ -21,8 +22,8 @@ class UserProvider extends ChangeNotifier{
 
   Future<void> getUserListFromServer()async{
     setIsLoading(true);
-    final response = await http.get(Uri.parse("https://dummyjson.com/users"));
     try {
+    final response = await http.get(Uri.parse("https://dummyjson.com/users"));
       
       if(response.statusCode ==200){
         _userList = (jsonDecode(response.body)["users"] as List<dynamic>)
@@ -69,8 +70,9 @@ class UserProvider extends ChangeNotifier{
   }
 
   Future<void> deleteAUser({
+    required BuildContext context,
     required int id,
-    required Function(String) responceMessage,
+    // required Function(String) responceMessage,
   })async{
     setIsLoading(true);
     try {
@@ -78,13 +80,14 @@ class UserProvider extends ChangeNotifier{
       if(responese.statusCode == 200) {
           _userList.removeWhere((e) => e["id"] == id);
             debugPrint("removed");
-        responceMessage("User Removed Successfully.");
+            setIsLoading(false);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("200")));
+        // responceMessage("User Removed Successfully.");
       } else {
-        responceMessage("Failed.");
+        // responceMessage("Failed.");
       }
     } catch (e) {
       debugPrint("Delete Error $e");
-    }finally{
       setIsLoading(false);
     }
   }

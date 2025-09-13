@@ -1,10 +1,11 @@
-import 'package:ai_application/botton_sheet.dart';
-import 'package:ai_application/helper_method.dart';
-import 'package:ai_application/history_screen.dart';
-import 'package:ai_application/providers/user_provider.dart';
-import 'package:ai_application/ui_helper_method.dart';
+import 'package:ai_application/presentation/widgets/bottom_sheet.dart';
+import 'package:ai_application/presentation/widgets/helper_method.dart';
+import 'package:ai_application/presentation/pages/history_screen.dart';
+import 'package:ai_application/presentation/widgets/ui_helper_method.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/route_manager.dart';
+
 
 class HelloScreen extends StatelessWidget {
   const HelloScreen({super.key});
@@ -26,14 +27,11 @@ class HelloScreen extends StatelessWidget {
                   // menu button 
                   IconButton(
                     onPressed: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>HistoryScreen()));
+                      Get.to(()=>HistoryScreen());
                     }, 
                     icon: Icon(Icons.menu), iconSize: 25, 
                   ),
         
-                  Container(
-                    
-                  ),
                   
                   Row(
                     spacing: 10,
