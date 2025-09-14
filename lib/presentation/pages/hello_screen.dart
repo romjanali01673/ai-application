@@ -1,3 +1,4 @@
+import 'package:ai_application/presentation/pages/infinity_scroll.dart';
 import 'package:ai_application/presentation/widgets/bottom_sheet.dart';
 import 'package:ai_application/presentation/widgets/helper_method.dart';
 import 'package:ai_application/presentation/pages/history_screen.dart';
@@ -67,7 +68,7 @@ class HelloScreen extends StatelessWidget {
                               Center(
                                 child: IconButton(
                                   onPressed: (){
-                                
+                                    Get.to(()=>InfinityScroll());
                                   }, 
                                   icon: Icon(Icons.notifications_active_outlined),
                                   iconSize: 25,

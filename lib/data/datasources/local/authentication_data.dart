@@ -8,9 +8,9 @@ class AuthenticationLocalData {
   late SharedPreferences sharedPreferences;
   AuthenticationLocalData._();
 
-  static Future<AuthenticationLocalData> instance()async{
+  static AuthenticationLocalData instance(){
     _instance??= AuthenticationLocalData._();
-    await _instance!.initialize();
+    _instance!.initialize();
     return _instance!;
   }
 

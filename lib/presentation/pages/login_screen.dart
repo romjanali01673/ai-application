@@ -33,13 +33,12 @@ class LoginScreen extends StatelessWidget {
         }, 
         child: Text("Login"),),
     );
-
   }
 
   Future<void> login()async{
     int id = 1; 
-    AuthenticationLocalData  authlocaldata = await AuthenticationLocalData.instance();
-    UserLocalData  userLocalData = await UserLocalData.instance();
+    AuthenticationLocalData  authlocaldata = AuthenticationLocalData.instance();
+    UserLocalData  userLocalData =  UserLocalData.instance();
     DioApiServices dioApiServices = DioApiServices.instance;
       Response<dynamic> response = await dioApiServices.makeRequest(
         method: HTTPMethod.get,

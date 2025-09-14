@@ -165,14 +165,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
 
 void navigateProfileScreen()async{
-  UserLocalData userLocalData = await UserLocalData.instance();
+  UserLocalData userLocalData =  UserLocalData.instance();
   UserModel? userModel =await userLocalData.getProfileLocally();
   Get.to(()=>ProfileScreen(userModel : userModel!));
 }
 
-void logout()async{
-  AuthenticationLocalData authLocalData = await AuthenticationLocalData.instance();
-  UserLocalData userLocalData = await UserLocalData.instance();
+void logout(){
+  AuthenticationLocalData authLocalData = AuthenticationLocalData.instance();
+  UserLocalData userLocalData = UserLocalData.instance();
   authLocalData.setIsSignined(false);
   userLocalData.clearUserProfile();
   Get.offAll(()=>LoginScreen());

@@ -12,10 +12,10 @@ class UserLocalData{
   // constractor
   UserLocalData._();
 
-  static Future<UserLocalData> instance()async{
-
+  static UserLocalData instance(){
+    
     _instance??= UserLocalData._();
-    await _instance!.initialize();
+    _instance!.initialize();
     return _instance!;
   }
 
